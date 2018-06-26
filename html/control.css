@@ -1,0 +1,82 @@
+/****************************************************
+ * This file is part of the Cinema Player scripts
+ *
+ * It is provided as is unter the
+ * GNU GENERAL PUBLIC LICENSE Version 3
+ *
+ * @author	  Thomas Winkler <thomas.winkler__at__iggmp.net>
+ * @Version   1.0
+ * @copyright 2018
+ ****************************************************/
+
+body {
+	margin: 10;
+	padding: 0;
+}
+
+#page {
+}
+
+#control {
+	height: 30px;
+	width: 100%;
+	padding: 3px;
+}
+
+#directory {
+}
+
+.status {
+	float: right;
+}
+
+.online, .offline {
+	font-size: 90%;
+	font-weight: bold;
+}
+
+.online {
+	color: green;
+	display: none
+}
+
+.offline {
+	color: red;
+}
+
+.button {
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 16px;
+	float: left;
+	margin-right: 20px;
+}
+
+.position {
+	position: relative;
+	border: none;
+	height: 5px;
+	width: 200px;
+	border-bottom: 1px solid #aaaafa;
+	color: white;
+}
+
+.position_bar {
+	top: 0px;
+	left: 0px;
+	position: absolute;
+	height: 100%;
+	width: 0px;
+	background-color: red;
+}
+
+.playing {
+	color: #a0a0a0;
+	border: 1px solid black;
+	padding: 3px;
+}
+
+.active {
+	color: #5050ff;
+	font-weight: bold;
+}
