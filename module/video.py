@@ -63,25 +63,38 @@ class Video:
 	# gete play position in seconds
 	def get_time_pos(self):
 		if isinstance(self._player, Player):
-			return self._player.get_time_pos()
+
+			self._lasttime = self._player.properties.time_pos
+			return self._player.properties.time_pos
 
 	# get play position as percentage (0-100)
 	def get_percent_pos(self):
 		if isinstance(self._player, Player):
-			if hasattr(self._player, "properties"):
-				return self._player.properties.percent_pos
+
+			self._lasttime = self._player.properties.time_pos
+			return self._player.properties.percent_pos
 
 	# get file name
 	def get_file_name(self):
 		if isinstance(self._player, Player):
-			if hasattr(self._player, "properties"):
+			# if hasattr(self._player, "properties"):
 
-				# filename unavailabe -> kill player process
-				if (self._player.properties.filename == 'PROPERTY_UNAVAILABLE'):
-					self.quit()
+			# filename unavailabe -> kill player process
+			if (self._player.properties.filename == 'PROPERTY_UNAVAILABLE'):
+				self.quit()
 
-				else:
-					return self._player.properties.filename
+			else:
+				return self._player.properties.filename
+
+	# get player status
+	def status(self):
+		if not isinstance(self._player, Player):
+			return "stop"
+
+		if self._lasttime == self._player.properties.time_pos:
+			return "pause"
+		else:
+			return "play"
 
 	# quit player
 	def quit(self):

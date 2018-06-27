@@ -54,6 +54,9 @@ class Play:
 #		self.lower_video.quit()
 		pass
 
+	def status(self):
+		return self.upper_video.status()
+		
 	def position(self):
 		return self.upper_video.get_percent_pos()
 

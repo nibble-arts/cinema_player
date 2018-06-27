@@ -10,54 +10,172 @@
  ****************************************************/
 
 body {
-	margin: 10;
+	font-family: sans-serif;
+	font-size: 14px;
+	margin: 0;
+	padding: 0;
+	background-color: #505050;
+	color: #fff;
+}
+
+ul, li {
+	margin: 0;
 	padding: 0;
 }
 
 #page {
+	margin: 0;
+	padding: 10px;
+}
+
+#head {
+	position: absolute;
+	display: inline-block;
+	height: 40px;
+	left: 0;
+	right: 0;
+	border-bottom: 1px solid #a0a0a0;
+}
+
+#head_content {
+	position: relative;
+	left: 10px;
+	right: 10px;
+}
+
+#file_nav {
+	position: relative;
+	top: 50px;
+}
+
+#file_nav_content {
+
 }
 
 #control {
-	height: 30px;
-	width: 100%;
-	padding: 3px;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	/*height: 80px;*/
+	left: 0;
+	right: 0;
+	display: inline-block;
+	border-top: 1px solid #a0a0a0;
+	background-color: #505050;
+}
+
+#control_content {
+	padding: 0;
+	margin: 5px;
 }
 
 #directory {
+	position: relative;
+	border: 1px solid #a0a0a0;
+	padding: 10px;
+	margin: 0 0 10px 0;
+}
+
+#files {
+	position: relative;
+	border: 1px solid #a0a0a0;
+	padding: 10px;
+	margin: 0 0 10px 0;
+}
+
+.title {
+	font-weight: bold;
+	font-size: 24px;
+}
+
+.dir_name {
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+.current_file {
+	float: left;
+	min-height: 18px;
+	min-width: 200px;
+	display: inline-block;
+	margin: 5px 5px 5px 0;
+	padding: 3px 10px 3px 10px;
+	border: solid #a0a0a0;
+	background-color: #e0e0e0;
+	color: #202020;
+}
+
+.button, .nav {
+	cursor: pointer;
+	float: left;
+}
+
+.nav {
+	width: 50px;
+	height: 50px;
+	padding: 3px 5px 3px 0;
+}
+
+.off {
+	-webkit-filter: brightness(70%);
+	filter: brightness(70%);
+}
+
+.disabled {
+	-webkit-filter: grayscale(100%) brightness(40%);
+	filter: grayscale(100%) brightness(40%);
+	cursor: auto;
+}
+
+.dir {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+.dir:before {
+	content: '';
+	width: 18px;
+	height: 18px;
+	display: inline-block;
+	background-size:contain;
+	background-image: url('images/dir.png');
+	margin-right: 5px;
+}
+
+.file {
+	list-style-type: none;
 }
 
 .status {
-	float: right;
+	position: absolute;
+	right: 10px;
+	top: 0;
 }
 
 .online, .offline {
+	position: relative;
+	right: 10px;
 	font-size: 90%;
 	font-weight: bold;
 }
 
 .online {
-	color: green;
+	color: #80ff80;
 	display: none
 }
 
 .offline {
-	color: red;
+	color: #ff8080;
 }
 
-.button {
-	cursor: pointer;
-	font-weight: bold;
-	font-size: 16px;
-	float: left;
-	margin-right: 20px;
-}
 
 .position {
 	position: relative;
 	border: none;
-	height: 5px;
-	width: 200px;
-	border-bottom: 1px solid #aaaafa;
+	height:15px;
+
+	border: 1px solid #aaaafa;
 	color: white;
 }
 
@@ -67,7 +185,7 @@ body {
 	position: absolute;
 	height: 100%;
 	width: 0px;
-	background-color: red;
+	background-color: #8080FF;
 }
 
 .playing {
@@ -77,6 +195,6 @@ body {
 }
 
 .active {
-	color: #5050ff;
+	color: #a0a0ff;
 	font-weight: bold;
 }

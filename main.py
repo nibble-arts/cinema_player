@@ -10,6 +10,8 @@
 # ****************************************************
 
 import time, os, sys
+from os import listdir
+from os.path import isfile, isdir, join
 import BaseHTTPServer
 import urlparse
 from urlparse import parse_qs
@@ -33,11 +35,11 @@ PORT_NUMBER = 8000 # Maybe set this to 9000.
 VIDEO_PATH = '/home/tom/Videos/'
 HTTP_ROOT = 'html/'
 
-current_dir = VIDEO_PATH
 
 class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
-    player = None
+    _player = None
+    _current_dir = VIDEO_PATH
 
     def do_HEAD(s):
 
@@ -47,7 +49,12 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def do_GET(s):
 
-#        print "GET"
+        def _get_files(dir):
+            return [f for f in listdir(MyHandler._current_dir) if (isfile(join(MyHandler._current_dir, f)) and not f.startswith("."))]
+
+        def _get_dirs(dir):
+            return [f for f in listdir(MyHandler._current_dir) if (isdir(join(MyHandler._current_dir, f)) and not f.startswith("."))]
+
 
         # get path
         uri = s.path
@@ -67,6 +74,7 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         path = path[0]
 
 
+
         #====================================================
         # api access
         # api?cmd=...&file=...
@@ -83,7 +91,7 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             #==============================
             # file found
             if (query.get("file")):
-                filepath = VIDEO_PATH + query.get("file")[0]
+                filepath = MyHandler._current_dir + query.get("file")[0]
             else:
                 filepath = ""
 
@@ -102,18 +110,63 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 # list directory
                 #==============================
                 if (cmd == "list"):
-                    response["dir"] = VIDEO_PATH
-                    directory = os.listdir(VIDEO_PATH)
+                    response["dir"] = MyHandler._current_dir
+                    # directory = os.listdir(MyHandler._current_dir)
 
-                    response["files"] = directory
+                    files = _get_files(MyHandler._current_dir)
+                    dirs = _get_dirs(MyHandler._current_dir)
+
+                    response["files"] = files
+                    response["dirs"] = dirs
+
+
+                #==============================
+                # change directory
+                #==============================
+                if (cmd == "cd"):
+
+                    response["cmd"] = cmd
+                    newDir = MyHandler._current_dir
+
+                    if (not MyHandler._current_dir.endswith("/")):
+                        newDir = newDir + "/"
+
+                    MyHandler._current_dir = newDir + query.get("file")[0] + "/"
+
+                    response["dir"] = MyHandler._current_dir
+                    response["dirs"] = _get_dirs(MyHandler._current_dir)
+                    response["files"] = _get_files(MyHandler._current_dir)
 
 
                 #==============================
                 # go directory up
                 #==============================
                 if (cmd == "up"):
+
+                    newDir = MyHandler._current_dir
+
+                    if (MyHandler._current_dir.endswith("/")):
+                        newDir = MyHandler._current_dir[:-1]
+
+                    MyHandler._current_dir = '/'.join(newDir.split("/")[:-1])+'/'
+
                     response["cmd"] = cmd
+                    response["dir"] = MyHandler._current_dir
+                    response["dirs"] = _get_dirs(MyHandler._current_dir)
+                    response["files"] = _get_files(MyHandler._current_dir)
                     pass
+
+
+                # #==============================
+                # # status
+                # #==============================
+                if (cmd == "status"):
+                    if isinstance(MyHandler._player, Play):
+                        response["status"] = MyHandler._player.status()
+                    else:
+                        response["status"] = "stop"
+
+                    response["cmd"] = "status"
 
 
                 #==============================
@@ -126,41 +179,41 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     if (cmd == "play"):
 
                         # stop existing player
-                        if isinstance(MyHandler.player, Play):
-                            MyHandler.player.quit()
-                            MyHandler.player = None;
+                        if isinstance(MyHandler._player, Play):
+                            MyHandler._player.quit()
+                            MyHandler._player = None;
 
 
-                        MyHandler.player = Play(filepath)
-                        MyHandler.player.play()
+                        MyHandler._player = Play(filepath)
+                        MyHandler._player.play()
 
                         response["cmd"] = "play"
-                        response["file"] = MyHandler.player.get_file_name()
+                        response["file"] = MyHandler._player.get_file_name()
 
 
                 #====================================================
                 # commands to active player
 
                 # player is active
-                if isinstance(MyHandler.player, Play):
+                if isinstance(MyHandler._player, Play):
 
                     
                     # add playing filename
-                    response["file"] = MyHandler.player.get_file_name()
+                    response["file"] = MyHandler._player.get_file_name()
 
                     #==============================
                     # toggle pause/play 
                     #==============================
                     if (cmd == "pause"):
-                        MyHandler.player.pause()
+                        MyHandler._player.pause()
                         response["cmd"] = "pause"
 
                     #==============================
                     # stop playback
                     #==============================
                     if (cmd == "stop"):
-                        MyHandler.player.quit()
-                        MyHandler.player = None;
+                        MyHandler._player.quit()
+                        MyHandler._player = None;
                         response["cmd"] = "stop"
 
                     #==============================
@@ -169,13 +222,13 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     if (cmd == "position"):
 
                         response["cmd"] = "position"
-                        response["time"] = MyHandler.player.position()
+                        response["time"] = MyHandler._player.position()
 
 
                 # no active player
                 else:
                     response["error"] = "no player"
-                    MyHandler.player = None
+                    MyHandler._player = None
 
 
                 #================

@@ -33,23 +33,40 @@
 <body>
 
 	<div id="page">
-		<h1>Video Server Control</h1>
-		<div class="status">Server is <span class="online">online</span><span class="offline">offline</span></div>
+		<div id="head">
+			<div id="head_content">
+				<div class="title">Video Server Control</div>
+				<div class="status"><span class="online">connected</span><span class="offline">disconnected</span></div>
 
-		<div>
-			<div cmd="list" class="button">Files</div>
-			<div id="directory"></div>
+				<div style="clear:both"></div>
+			</div>
 		</div>
-		<div style="clear:both"/>
 
-		<div id="position" class="position"></div>
-		<div class="filename"></div>
+		<div id="file_nav">
+			<div id="file_nav_content">
+				<div id="directory"></div>
+				<div id="files"></div>
+			</div>
+		</div>
+		<!-- <div style="clear:both"/> -->
+
+		<!-- <div class="filename"></div> -->
 
 		<div id="control">
-			<div cmd="pause" class="button playing">Pause</div>
-			<div cmd="stop" class="button playing">Stop</div>
-		</div>
+			<div id="control_content">
+				<div id="position" class="position"></div>
 
+				<img id="b_home" cmd="home" class="nav disabled" src="images/home.png">
+				<img id="b_stop" cmd="stop" class="button nav" src="images/stop.png">
+				<img id="b_pause" cmd="pause" class="button nav" src="images/pause.png">
+				<img id="b_rwd" cmd="rwd" class="nav disabled" src="images/rwd.png">
+				<img id="b_play" cmd="play" class="button nav" src="images/play.png">
+				<img id="b_fwd" cmd="fwd" class="nav disabled" src="images/fwd.png">
+				<img id="b_end" cmd="end" class="nav disabled" src="images/end.png">
+
+				<div class="current_file"></div>
+			</div>
+		</div>
 	</div>
 
 </body>
