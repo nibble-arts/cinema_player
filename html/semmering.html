@@ -1,0 +1,118 @@
+<!--****************************************************
+ * This file is part of the Cinema Player scripts
+ *
+ * It is provided as is unter the
+ * GNU GENERAL PUBLIC LICENSE Version 3
+ *
+ * @author	  Thomas Winkler <thomas.winkler__at__iggmp.net>
+ * @Version   1.0
+ * @copyright 2018
+ ****************************************************-->
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<title>Video Server</title>
+	<meta charset="UTF-8">
+
+	<script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="js/control.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="control.css">
+
+	<script>
+		$(document).ready(function(){ 
+			init("http://localhost:8000");
+		});
+	</script>
+
+</head>
+<!--****************************************************
+ * This file is part of the Cinema Player scripts
+ *
+ * It is provided as is unter the
+ * GNU GENERAL PUBLIC LICENSE Version 3
+ *
+ * @author	  Thomas Winkler <thomas.winkler__at__iggmp.net>
+ * @Version   1.0
+ * @copyright 2018
+ ****************************************************-->
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<title>Video Server</title>
+	<meta charset="UTF-8">
+
+	<script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="js/semmering.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="semmering.css">
+
+	<script>
+		$(document).ready(function(){ 
+			init("http://localhost:8000");
+		});
+	</script>
+
+</head>
+
+<body>
+
+	<div id="page">
+
+		<div id="page_content">
+			<div class="current_file"></div>
+			<div id="b_stop"></div>
+
+			<div id="colum_1">
+				<div class="row_0">
+					<div id="1" class="item button" cmd="play" file="Benkert_kurz.mp4">
+						<div class="title">Die Bauarbeiten</div>
+						<div class="subtitle">Construction Work</div>
+						<div class="position" file="Benkert_kurz.mp4"></div>
+					</div>
+				</div>
+
+				<div class="row_1">
+					<div id="2" class="item button" cmd="play" file="Tunnelbau_kurz.mp4">
+						<div class="title">Tunnelbau</div>
+						<div class="subtitle">Building Tunnels</div>
+						<div class="position" file="Tunnelbau_kurz.mp4"></div>
+					</div>
+				</div>
+			</div>
+
+			<div id="colum_2">
+
+				<div class="row_0">
+					<div id="3" class="item button" cmd="play" file="Basistunnel_kurz.mp4">
+						<div class="title">Der Basistunnel</div>
+						<div class="subtitle">The new Tunnel</div>
+						<div class="position" file="Basistunnel_kurz.mp4"></div>
+					</div>
+				</div>
+
+				<div class="row_1">
+					<div id="4" class="item button" cmd="play" file="Weltkultur_kurz.mp4">
+						<div class="title">Weltkulturerbe</div>
+						<div class="subtitle">World Heritage</div>
+						<div class="position" file="Weltkultur_kurz.mp4"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="home">
+			<div class="home_button" cmd="stop"><img src="images/home_button.png" width="65px"></div>
+		</div>
+
+	</div>
+
+</body>
+

@@ -23,7 +23,7 @@ function init(url) {
 
 	uri = url;
 
-	buttons = $(".button");
+	buttons = $(".button, .home_button");
 
 
 	// set video navigation events
@@ -36,10 +36,7 @@ function init(url) {
 				cmd = $(this).attr("cmd");
 				file = $(this).attr("file");
 
-				if (file)
-					send_command(cmd, file);
-				else
-					send_command(cmd, current_file);
+				send_command(cmd, file);
 
 			});
 		}
@@ -92,13 +89,11 @@ function send_command(cmd, file) {
  *********************************************************/
 function update_display(data) {
 
-	set_online();
+	// set_online();
 	nav_buttons(data);
 	position_bar(data);
-	display_file_name(data.file);
-	display_length(data.length);
-	list_dirs(data);
-	list_files(data);
+	// display_file_name(data.file);
+	// display_length(data.length);
 
 }
 
@@ -112,12 +107,9 @@ function nav_buttons(data) {
 	switch (data.status) {
 
 		case "stop":
+			current_file = null;
+			clear_position();
 			set_stop();
-			set_position(0);
-			break;
-
-		case "pause":
-			set_pause();
 			break;
 
 		case "play":
@@ -126,67 +118,31 @@ function nav_buttons(data) {
 			break;
 	}
 
-
-	// show play button if file is selected
-	if (current_file == "") {
-		$(".nav[cmd='play']")
-			.addClass("disabled");
-	}
-	else {
-		$(".nav[cmd='play']")
-			.removeClass("disabled");
-	}
 }
 
 
 // set stop
 function set_stop() {
 
-	$(".nav")
-		.addClass("off");
+	$(".button[file != '"+current_file+"']")
+		.fadeIn(500);
 
-	$("#b_play")
-		.attr("cmd", "play");
-
-	$("#b_pause")
-		.addClass("disabled");
-
-	$("#b_stop")
-		.removeClass("off");
-
-}
-
-
-// set pause
-function set_pause() {
-
-	$(".nav")
-		.addClass("off");
-
-	$("#b_pause")
-		.removeClass("off");
-
-	$("#b_stop")
-		.addClass("off");
-
-	$("#b_play")
-		.attr("cmd", "pause");
-
+	$(".home_button")
+		.fadeOut(500);
 }
 
 
 // set play
 function set_play() {
 
-	$(".nav")
-		.addClass("off");
+	$(".button[file != '"+current_file+"']")
+		.fadeOut(500);
 
-	$("#b_play")
-		.removeClass("off")
-		.attr("cmd", "pause");
+	$(".button[file = '"+current_file+"']")
+		.fadeIn(500);
 
-	$("#b_pause")
-		.removeClass("disabled");
+	$(".home_button")
+		.fadeIn(500);
 
 }
 
@@ -212,10 +168,8 @@ function set_offline() {
  *********************************************************/
 function position_bar(data) {
 
-	if (data.time !== undefined) {
-
+	if ((data.time !== undefined) && data.time !== null) {
 		set_position(data.time);
-
 	}
 }
 
@@ -223,11 +177,11 @@ function position_bar(data) {
 function set_position (pos) {
 
 	// get position div
-	position = $(".position");
+	position = $(".position[file='"+current_file+"']");
 
 	// create position bar if not exists
-	if (!$(".position_bar").length) {
-		$(position).append('<div class="position_bar"></div>');
+	if (position.children().length == 0) {
+		$(position).append('<div file="' + current_file + '" class="position_bar"></div>');
 	}
 
 	// get max size
@@ -235,7 +189,7 @@ function set_position (pos) {
 	height = $(position).height();
 
 	// set bar height
-	bar = $(".position_bar");
+	bar = $(".position_bar[file='" + current_file + "']");
 	$(bar).height(height);
 
 	// update progression bar
@@ -245,6 +199,11 @@ function set_position (pos) {
 	else {
 		$(bar).css("width",0);
 	}
+}
+
+
+function clear_position () {
+	$(".position").empty();
 }
 
 
@@ -286,104 +245,6 @@ function display_length(length) {
 }
 
 
-/*********************************************************
- * list files
- *********************************************************/
-function list_files(data) {
-
-	files = data.files;
-
-	if (files) {
-		$("#files").empty();
-
-		ul = $('<ul class="file_list"></ul>');
-		$("#files").append(ul);
-
-		// list of files
-		if (files != undefined) {
-
-			// ul = $('<ul class="file_list"></ul>');
-			// $("#directory").append(ul);
-
-
-			$.each(files, function () {
-
-				li = $('<li class="file" name="' + this + '">' + this + '</li>');
-				li
-					.css("cursor", "pointer")
-					.bind("click", function () {
-
-						// send_command("play", $(this).attr("name"));
-						if ($(this).attr("name")) {
-							current_file = $(this).attr("name");
-						}
-
-					});
-
-				ul.append(li);
-			});
-
-		}
-		$("#files").append(ul);
-	}
-}
-
-
-/*********************************************************
- * list directories
- *********************************************************/
-function list_dirs(data) {
-
-	dir = data.dir;
-	dirs = data.dirs;
-
-	// get current dir
-	olddir = $(".dir_name").text();
-
-	// if chanched write new directory name and list files
-	if (dir != undefined && olddir != dir) {
-
-		$("#directory").empty();
-		$("#directory").append('<div class="dir_name">'+dir+'</div>');
-
-		ul = $('<ul class="dir_list"></ul>');
-		$("#directory").append(ul);
-
-		// add dir up
-		li = $('<li class="dir" name="up">..</li>');
-		li
-			.css("cursor", "pointer")
-			.bind("click", function () {
-
-				current_file = "";
-				send_command("up", $(this).attr("name"));
-
-			});
-
-		ul.append(li);
-
-
-		// list of directories
-		if (dirs != undefined) {
-
-			$.each(dirs, function () {
-
-				li = $('<li class="dir" name="' + this + '">' + this + '</li>');
-				li
-					.css("cursor", "pointer")
-					.bind("click", function () {
-
-						send_command("cd", $(this).attr("name"));
-
-					});
-
-				ul.append(li);
-			});
-		}
-
-		$(".dir_list").append(ul);
-	}
-}
 
 /*********************************************************
  * timed poll function

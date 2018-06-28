@@ -60,6 +60,7 @@ class Properties(object):
 
         # Skipping a line that is not an answer (and other garbage)
         while (not ('ANS_'+item['command'] in answer) and not ('ANS_ERROR' in answer)):
+            time.sleep(0.005)
             answer = self._player_answer.readline()
 
         if self._debug: 

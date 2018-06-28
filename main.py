@@ -56,6 +56,8 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             return [f for f in listdir(MyHandler._current_dir) if (isdir(join(MyHandler._current_dir, f)) and not f.startswith("."))]
 
 
+        # print "GET"
+
         # get path
         uri = s.path
 
@@ -72,7 +74,6 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         # get path
         path = path[0]
-
 
 
         #====================================================
@@ -235,20 +236,17 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 # print to console
 #                print "cmd: "+cmd+" "
 
-                for key in response:
-                    if (key != "cmd"):
+                # for key in response:
+                #     if (key != "cmd"):
 
-                        if (type(response[key]) is str):
-#                            print " "+key+"="+response[key]
-                            pass
-                        else:
-#                            print " "+key+"="+str.join(", ",response[key])
-                            pass
+                #         if (type(response[key]) is str):
+                #             print " "+key+"="+response[key]
+                #             pass
+                #         else:
+                #             if (not response[key] == None):
+                #                 print " "+key+"="+str.join(", ",response[key])
+                #             pass
 
-
-            # If someone went to "http://something.somewhere.net/foo/bar/",
-            # then s.path equals "/foo/bar/".
-#            print response
 
             s.wfile.write(json.dumps(response))
             pass

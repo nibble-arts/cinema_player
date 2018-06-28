@@ -29,13 +29,8 @@ class Video:
 		self._player.add_command_option(option='-geometry', value=position)
 		self._player.add_command_option(option='-vf', value='crop='+crop)
 
-		# print self._player
 		# create player process
 		self._player.create_new_process()
-		# atexit.register(self._player.process.terminate)
-
-		# print vars(self.playe)
-
 		pass
 
 	# start video
