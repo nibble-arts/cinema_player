@@ -32,31 +32,31 @@ class Play:
 
 	def __del__(self):
 		self.upper_video = None
-		self.lower_video = None
+
 
 	def play(self):
 		self.upper_video.play()
-		self.lower_video.play()
+#		self.lower_video.play()
 		pass
 
 	def pause(self):
 		self.upper_video.pause()
-		self.lower_video.pause()
+#		self.lower_video.pause()
 		pass
 
 	def stop(self):
 		self.upper_video.stop()
-		self.lower_video.quit()
+#		self.lower_video.quit()
 		pass
 
 	def quit(self):
 		self.upper_video.quit()
-		self.lower_video.quit()
+#		self.lower_video.quit()
 		pass
 
 	def status(self):
 		return self.upper_video.status()
-
+		
 	def position(self):
 		return self.upper_video.get_percent_pos()
 

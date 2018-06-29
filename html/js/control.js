@@ -21,7 +21,7 @@ function init(url) {
 
 	set_stop();
 
-	uri = url;
+	uri = "http://semmering.local:8000";
 
 	buttons = $(".button");
 

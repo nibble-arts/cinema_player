@@ -11,4 +11,5 @@
 # * @copyright 2018
 # ****************************************************
 
-pypy main.py
+cd /home/tom/bin/cinema_player/
+python main.py
