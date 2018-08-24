@@ -1,0 +1,48 @@
+### API documentation ###
+
+COMMANDS:
+=========
+
+DIRECOTRY:
+----------
+
+list
+----
+	list current directory
+
+{ dirinfo: {
+		dir: "current_dir",								current directory
+		dirs: ["dir1", "dir2", ...],					list of subdirectories
+		files: ["file1", "file2", ...],					list of video filenames
+		pl_files: ["pl_file1", "pl_file2", ...]			list of playlist filenames
+	}
+}
+
+up
+--
+	Go up one level. Returns the dirinfo of the list command.
+
+cd file="path"
+--------------
+	Change current directory to path. Returns the dirinfo of the list command.
+
+
+
+fileinfo file="path"
+--------------------
+	Get the content of the video file info configuration file.
+
+{ fileinfo: {
+		file: "file name"
+		audio: {
+			param1: "value1",
+			param2: "value2",
+			...
+		},
+		video: {
+			param1: "value1",
+			param2: "value2",
+			...
+		}
+	}
+}

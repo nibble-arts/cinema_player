@@ -17,11 +17,11 @@ var current_file = "";
 /*********************************************************
  * init control window
  *********************************************************/
-function init(url) {
+function init() {
 
 	set_stop();
 
-	uri = "http://semmering.local:8000";
+	uri = window.location.origin;
 
 	buttons = $(".button, .home_button");
 
@@ -36,15 +36,14 @@ function init(url) {
 				cmd = $(this).attr("cmd");
 				file = $(this).attr("file");
 
-				send_command(cmd, file);
+				send_command(cmd, {file: file});
 
 			});
 		}
 
 	});
 
-	send_command("status");
-	send_command("list");
+//	send_command("list");
 
 	start_timer(500);
 }
@@ -54,18 +53,19 @@ function init(url) {
  * send command to server
  *		call update_display on answer
  *********************************************************/
-function send_command(cmd, file) {
+function send_command(cmd, data) {
 
 	// add command
 	query = '/api?cmd='+cmd;
 
 	// add file to play
-	if ((file != undefined) && file != "") { query += '&file='+file; }
+//	if ((file != undefined) && file != "") { query += '&file='+file; }
 
 
 	// send command
 	$.ajax({
 		url: uri+query,
+		data: data,
 		dataType: "json",
 		contentType: "multipart/form-data",
 
@@ -89,7 +89,7 @@ function send_command(cmd, file) {
  *********************************************************/
 function update_display(data) {
 
-	// set_online();
+	set_online();
 	nav_buttons(data);
 	position_bar(data);
 	// display_file_name(data.file);
@@ -114,7 +114,7 @@ function nav_buttons(data) {
 
 		case "play":
 			current_file = data.file;
-			set_play();
+			set_play(data.screensaver);
 			break;
 	}
 
@@ -133,13 +133,25 @@ function set_stop() {
 
 
 // set play
-function set_play() {
+function set_play(screensaver) {
 
-	$(".button[file != '"+current_file+"']")
-		.fadeOut(500);
+	if (!screensaver) {
 
-	$(".button[file = '"+current_file+"']")
-		.fadeIn(500);
+		$(".button[file != '"+current_file+"']")
+			.fadeOut(500);
+
+		$(".button[file = '"+current_file+"']")
+			.fadeIn(500);
+	}
+
+	else {
+		$(".button[file != '"+current_file+"']")
+			.fadeIn(500);
+
+		// remove all position displays
+		$(".position").empty();
+	}
+
 
 	$(".home_button")
 		.fadeIn(500);
@@ -151,14 +163,18 @@ function set_play() {
  * draw online/offline icon
  *********************************************************/
 function set_online() {
-	$(".online").show();
-	$(".offline").hide();
+//	$(".online").show();
+//	$(".offline").hide();
+
+    $(".button").css("opacity", 1);
 }
 
 
 function set_offline() {
-	$(".online").hide();
-	$(".offline").show();
+//	$(".online").hide();
+//	$(".offline").show();
+
+    $(".button").css("opacity", 0.4);
 }
 
 
@@ -253,8 +269,7 @@ function start_timer(duration) {
 
 	setTimeout(function() {
 
-		send_command("position", "");
-		send_command("status");
+		send_command("position");
 		start_timer(duration);
 
 	}, duration);

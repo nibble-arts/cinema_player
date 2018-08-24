@@ -1,0 +1,9 @@
+[player]
+master = screen1
+screensaver = /home/tom/Videos/Screensaver.mp4
+enable_screensaver = False
+
+[screens]
+screen1 = {'position': '0:0', 'crop': '1920:1080:0:0'}
+screen2 = {'position': '0:1920', 'crop': '1920:1080:0:1080'}
+

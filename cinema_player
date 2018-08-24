@@ -1,0 +1,9 @@
+#!/usr/bin/pypy
+
+import sys, os
+from module.main import main
+
+os.chdir(os.path.dirname(__file__))
+
+if __name__ == '__main__':
+	sys.exit(main())

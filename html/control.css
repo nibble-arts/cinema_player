@@ -18,10 +18,11 @@ body {
 	color: #fff;
 }
 
-ul, li {
+ul, li, ol {
 	margin: 0;
 	padding: 0;
 }
+
 
 #page {
 	margin: 0;
@@ -38,18 +39,34 @@ ul, li {
 }
 
 #head_content {
-	position: relative;
+	position: absolute;
+
 	left: 10px;
 	right: 10px;
 }
 
-#file_nav {
+#content {
 	position: relative;
 	top: 50px;
 }
 
-#file_nav_content {
+#file_nav, #file_info, #playlist {
+	width: 33%;
+}
 
+#file_nav {
+	position: relative;
+	float: left;
+}
+
+#file_info {
+	position: relative;
+	float: left;
+}
+
+#playlist {
+	position: relative;
+	float: left;
 }
 
 #control {
@@ -69,18 +86,42 @@ ul, li {
 	margin: 5px;
 }
 
-#directory {
+#directory, #files, #pl_files, #info, #playlist_content {
 	position: relative;
 	border: 1px solid #a0a0a0;
 	padding: 10px;
-	margin: 0 0 10px 0;
+	margin: 0 10px 10px 0;
+	min-width: 50%;
 }
 
-#files {
+#position {
+	cursor: pointer;
+}
+
+.seek {
 	position: relative;
+	width: 3px;
+	height: 100%;
+	background-color: red;
+	display: block;
+}
+
+.video_info, .audio_info {
+}
+
+.label {
+	position: relative;
+	left: 10px;
+	width: 100px;
+}
+
+.value {
+	position: absolute;
+	left: 100px;
 	border: 1px solid #a0a0a0;
-	padding: 10px;
-	margin: 0 0 10px 0;
+	display: inline-block;
+	height: 1em;
+	min-width: 150px;
 }
 
 .title {
@@ -88,21 +129,44 @@ ul, li {
 	font-size: 24px;
 }
 
+.subtitle {
+	font-weight: bold;
+	font-size: 14px;
+}
+
 .dir_name {
 	font-weight: bold;
 	margin-bottom: 10px;
 }
 
-.current_file {
+.file_box {
+	position: relative;
+	display: inline-block;
+
+}
+
+.legend {
+	position: relative;
+	font-size: 80%;
+	line-height: 80%;
+}
+
+.current_file, .current_playlist, .screensaver {
 	float: left;
-	min-height: 18px;
-	min-width: 200px;
+	height: 18px;
+	width: 200px;
 	display: inline-block;
 	margin: 5px 5px 5px 0;
 	padding: 3px 10px 3px 10px;
 	border: solid #a0a0a0;
 	background-color: #e0e0e0;
 	color: #202020;
+
+	overflow: hidden;
+}
+
+.screensaver {
+	cursor: pointer;
 }
 
 .button, .nav {
@@ -116,6 +180,15 @@ ul, li {
 	padding: 3px 5px 3px 0;
 }
 
+
+.current_volume {
+	position: relative;
+	background-color: black;
+	display: block;
+	width: 100%;
+	bottom: 0;
+}
+
 .off {
 	-webkit-filter: brightness(70%);
 	filter: brightness(70%);
@@ -125,6 +198,17 @@ ul, li {
 	-webkit-filter: grayscale(100%) brightness(40%);
 	filter: grayscale(100%) brightness(40%);
 	cursor: auto;
+	pointer-events: none;
+}
+
+.inactive, .offline {
+	cursor: auto;
+	pointer-events: none;
+}
+
+.lightened, .inactive, .offline {
+	-webkit-filter: grayscale(100%) brightness(80%);
+	filter: grayscale(100%) brightness(80%);
 }
 
 .dir {
@@ -143,30 +227,21 @@ ul, li {
 	margin-right: 5px;
 }
 
-.file {
+.file, .playlistfile {
 	list-style-type: none;
+}
+
+.playlist {
+	margin-left: 10px;
 }
 
 .status {
 	position: absolute;
-	right: 10px;
-	top: 0;
-}
-
-.online, .offline {
-	position: relative;
-	right: 10px;
 	font-size: 90%;
 	font-weight: bold;
-}
-
-.online {
+	right: 10px;
+	top: 0;
 	color: #80ff80;
-	display: none
-}
-
-.offline {
-	color: #ff8080;
 }
 
 

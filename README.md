@@ -17,3 +17,9 @@ based on the ffmpeg library and therefore can playback a vast variety of video f
 
 The web control site is provided by the Python script, the html index.html File and JavaScript code
 can be found in the html directory.
+
+## Usage
+
+The basic setting for the Cinema Player are set in the config/config.cfg file. The server section holds the information about the host (normaly 'localhost') and the port for the web access. The api sections defines the name for the http path for api calls (normaly 'api'), the subdirectories for the html files and the start directory the file manager starts at.
+
+In the html subdirectory the index.html contains a standard player gui to access and play videos.

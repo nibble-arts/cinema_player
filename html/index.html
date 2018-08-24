@@ -24,7 +24,7 @@
 
 	<script>
 		$(document).ready(function(){ 
-			init("http://localhost:8000");
+			init();
 		});
 	</script>
 
@@ -35,17 +35,79 @@
 	<div id="page">
 		<div id="head">
 			<div id="head_content">
-				<div class="title">Video Server Control</div>
-				<div class="status"><span class="online">connected</span><span class="offline">disconnected</span></div>
+				<div class="title">Video Player Control</div>
+				<div class="status online">connected</div>
 
 				<div style="clear:both"></div>
 			</div>
 		</div>
 
-		<div id="file_nav">
-			<div id="file_nav_content">
-				<div id="directory"></div>
-				<div id="files"></div>
+		<div id="content" class="online">
+			<div id="file_nav" >
+				<div id="file_nav_content">
+					<div class="legend">Verzeichnisse</div>
+					<div id="directory"></div>
+
+					<div class="legend">Dateien</div>
+					<div id="files"></div>
+
+					<div class="legend">Playlisten</div>
+					<div id="pl_files"></div>
+				</div>
+			</div>
+
+			<div id="file_info">
+				<div class="legend">Filmeinstellungen</div>
+
+				<div id="info">
+					<div name="file" class="subtitle"></div><br>
+
+					<div class="video_info">
+						<div class="subtitle">Video</div>
+						<div name="video_start" edit>
+							<span class="label">Start</span>
+							<span class="value"></span>
+						</div>
+						<div name="video_end" edit>
+							<span class="label">End</span>
+							<span class="value"></span>
+						</div>
+						<div name="video_aspect" edit>
+							<span class="label">Aspekt</span>
+							<span class="value"></span>
+						</div>
+
+<!--						<div name="video_crop" edit>
+							<span class="label">Crop</span>
+							<span class="value"></span>
+						</div>
+
+						<div name="video_zoom" edit>
+							<span class="label">Zoom</span>
+							<span class="value"></span>
+						</div>-->
+					</div><br>
+
+					<div class="audio_info">
+						<div class="subtitle edit">Audio</div>
+						<div name="audio_volume" edit>
+							<span class="label">Volume</span>
+							<span class="value"></span>
+						</div>
+					</div><br>
+
+					<div class="status_info">
+						<span>Als Screensaver nutzen </span>
+						<input type="checkbox" name="screensaver_check">
+					</div>
+				</div>
+			</div>
+
+			<div id="playlist">
+				<div class="legend">Playlist</div>
+
+				<div id="playlist_content">
+				</div>
 			</div>
 		</div>
 		<!-- <div style="clear:both"/> -->
@@ -53,18 +115,36 @@
 		<!-- <div class="filename"></div> -->
 
 		<div id="control">
-			<div id="control_content">
+			<div id="control_content" class="online">
 				<div id="position" class="position"></div>
 
 				<img id="b_home" cmd="home" class="nav disabled" src="images/home.png">
-				<img id="b_stop" cmd="stop" class="button nav" src="images/stop.png">
-				<img id="b_pause" cmd="pause" class="button nav" src="images/pause.png">
-				<img id="b_rwd" cmd="rwd" class="nav disabled" src="images/rwd.png">
-				<img id="b_play" cmd="play" class="button nav" src="images/play.png">
-				<img id="b_fwd" cmd="fwd" class="nav disabled" src="images/fwd.png">
+				<img id="b_stop" cmd="stop" class="button nav" src="images/stop.png" title="Stoppt die Wiedergabe">
+				<img id="b_pause" cmd="pause" class="button nav" src="images/pause.png" title="Pause ein/aus">
+<!--				<img id="b_rwd" cmd="rwd" class="nav disabled" src="images/rwd.png">-->
+				<img id="b_play" cmd="play" class="button nav" src="images/play.png" title="Spiele aktuellen Film von Anfang">
+<!--				<img id="b_fwd" cmd="fwd" class="nav disabled" src="images/fwd.png">-->
 				<img id="b_end" cmd="end" class="nav disabled" src="images/end.png">
 
-				<div class="current_file"></div>
+				<img id="b_voldown" cmd="volume" params="volume=-1" class="button nav disabled" src="images/voldown.png">
+
+				<div id="volume" class="nav"></div>
+				<img id="b_volup" cmd="volume" params="volume=1" class="button nav disabled" src="images/volup.png">
+
+				<div class="file_box">
+					<div class="legend">Aktueller Filme</div>
+					<div class="current_file"></div>
+				</div>
+
+				<div class="file_box">
+					<div class="legend">Aktuelle Playlist</div>
+					<div class="current_playlist"></div>
+				</div>
+
+				<div class="file_box" title="Aktueller Screensaver-Film. Durch Klick ein- und ausschalten">
+					<div class="legend">Screensaver</div>
+					<div class="screensaver"></div>
+				</div>
 			</div>
 		</div>
 	</div>

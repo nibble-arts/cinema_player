@@ -11,17 +11,100 @@
 
 
 var uri = "";
+var status = "stop";
 var current_file = "";
+var current_playlist = "";
+var current_play = false;
+
+var current_seek = false;
+
+var playerData = new Data();
+
+
+
+/*********************************************************
+ * data section
+ *********************************************************/
+function Data() {
+
+	var data = {};
+
+	var set = function (key, val) {
+		data[key] = val;
+	};
+
+	var remove = function (key) {
+		if (data.hasOwnProperty(key)) {
+			delete data[key];
+		}
+	};
+
+	return {
+
+		// get property by key
+		// no key: get data object
+		get: function (key) {
+
+			if (key != undefined) {
+				if (data.hasOwnProperty(key))
+					return data[key];
+				else
+					return false;
+			}
+
+			else
+				return data;
+		},
+
+		// get array of keys
+		keys: function () {
+			var keys = [];
+
+			$.each(data, function (k,v) {
+				keys.push(k);
+			});
+
+			return keys;
+		},
+
+		// update data
+		update: function (data) {
+
+			$.each(data, function (k, v) {
+				set(k,v);
+			});
+		},
+
+		// clear data object
+		// if keys is []: reset only these keys
+		reset: function (keys) {
+
+			// reset fields
+			if (keys) {
+				$.each(keys, function (k, v) {
+					remove(this);
+				})
+			}
+
+			// reset all
+			else {
+				data = {};
+			}
+		}
+
+	}
+};
+
 
 
 /*********************************************************
  * init control window
  *********************************************************/
-function init(url) {
+function init() {
 
 	set_stop();
 
-	uri = "http://semmering.local:8000";
+	uri = window.location.origin;
 
 	buttons = $(".button");
 
@@ -35,21 +118,33 @@ function init(url) {
 
 				cmd = $(this).attr("cmd");
 				file = $(this).attr("file");
+				params = $(this).attr("params");
 
-				if (file)
-					send_command(cmd, file);
+				paramList = [];
+
+				// add file
+				if (file != undefined)
+					paramList.push("file="+file);
 				else
-					send_command(cmd, current_file);
+					paramList.push("file="+current_file);
+
+				// add parameters
+				if (params)
+					paramList.push(params);
+
+				// send command
+				send_command(cmd, paramList.join("&"));
 
 			});
 		}
 
 	});
 
-	send_command("status");
 	send_command("list");
+	send_command("playlist");
+	send_command("stop");
 
-	start_timer(500);
+	start_timer(250);
 }
 
 
@@ -57,23 +152,29 @@ function init(url) {
  * send command to server
  *		call update_display on answer
  *********************************************************/
-function send_command(cmd, file) {
+function send_command(cmd, data) {
 
 	// add command
 	query = '/api?cmd='+cmd;
 
-	// add file to play
-	if ((file != undefined) && file != "") { query += '&file='+file; }
+/*	if (data !== undefined) {
+
+		// add file to play
+		if ((data.file != undefined) && data.file != "") { query += '&file='+data.file; }
+
+	}*/
 
 
 	// send command
 	$.ajax({
 		url: uri+query,
+		data: data,
 		dataType: "json",
 		contentType: "multipart/form-data",
 
 		success: function (data) {
-			update_display(data);
+			set_data(data);
+			update_display();
 		},
 
 		error: function (xhr, ajaxOptions, thrownError) {
@@ -88,17 +189,50 @@ function send_command(cmd, file) {
 
 
 /*********************************************************
+ * save loaded data
+ *	reset data that is not updated periodically
+ *********************************************************/
+function set_data(data) {
+
+	playerData.reset(["dirinfo", "volume"]);
+	playerData.update(data);
+
+}
+
+
+/*********************************************************
  * update all display items
  *********************************************************/
-function update_display(data) {
+function update_display() {
 
 	set_online();
-	nav_buttons(data);
-	position_bar(data);
-	display_file_name(data.file);
-	display_length(data.length);
-	list_dirs(data);
-	list_files(data);
+	nav_buttons();
+	position_bar();
+
+	display_file_name();
+	display_length();
+
+	display_volume(playerData.get("volume"));
+
+	if (data = playerData.get("fileinfo")) {
+		display_info(data);
+	}
+
+
+	if (data = playerData.get("dirinfo")) {
+		display_dirinfo(data);
+	}
+
+	display_playlist();
+
+}
+
+
+function display_dirinfo(data) {
+
+	list_dirs(data["dir"], data["dirs"]);
+	list_files(data["dir"], data["files"]);
+	list_pl_files(data["dir"], data["pl_files"]);
 
 }
 
@@ -106,23 +240,26 @@ function update_display(data) {
 /*********************************************************
  * draw video navigation
  *********************************************************/
-function nav_buttons(data) {
+function nav_buttons() {
 
 	// switch stati of buttons on server status
-	switch (data.status) {
+	switch (playerData.get("status")) {
 
 		case "stop":
 			set_stop();
 			set_position(0);
+			status = "stop";
 			break;
 
 		case "pause":
 			set_pause();
+			status = "pause";
 			break;
 
 		case "play":
-			current_file = data.file;
+			current_file = playerData.get("file");
 			set_play();
+			status = "play";
 			break;
 	}
 
@@ -136,6 +273,8 @@ function nav_buttons(data) {
 		$(".nav[cmd='play']")
 			.removeClass("disabled");
 	}
+
+
 }
 
 
@@ -151,9 +290,25 @@ function set_stop() {
 	$("#b_pause")
 		.addClass("disabled");
 
+	/* halting */
+	if ($("#b_stop").hasClass("off") && status != "stop") {
+		set_next_play();
+	}
+
 	$("#b_stop")
 		.removeClass("off");
 
+	$("#files .file_list")
+		.removeClass("inactive");
+
+	$("#position")
+		.addClass("inactive");
+
+	$("#b_voldown")
+		.addClass("disabled")
+
+	$("#b_volup")
+		.addClass("disabled")
 }
 
 
@@ -172,6 +327,15 @@ function set_pause() {
 	$("#b_play")
 		.attr("cmd", "pause");
 
+/*	$("#b_voldown")
+		.addClass("disabled")
+
+	$("#b_volup")
+		.addClass("disabled")
+*/
+
+//	$("#files .file_list")
+//		.removeClass("inactive");
 }
 
 
@@ -185,24 +349,70 @@ function set_play() {
 		.removeClass("off")
 		.attr("cmd", "pause");
 
+	$("#b_voldown")
+		.removeClass("disabled")
+
+	$("#b_volup")
+		.removeClass("disabled")
+
 	$("#b_pause")
 		.removeClass("disabled");
 
+	$("#position")
+		.removeClass("inactive");
+
+//	$("#files .file_list")
+//		.addClass("inactive");
+
 }
+
+
+// set seek
+function set_seek() {
+
+	$(".seek").remove();
+
+	$("#position").append("<div class='seek'></div>");
+	$(".seek").css("left", (current_seek / 100) * width);
+
+	$("#b_end")
+		.removeClass("disabled")
+		.bind("click", function () {
+			$(this).addClass("disabled")
+
+			if (current_seek !== false) {
+				send_command("seek", {position: current_seek});
+			}
+
+			$(".seek").remove();
+			current_seek = false;
+		});
+} 
+
+
+// set new play position of playlist
+function set_next_play() {
+
+}
+
 
 
 /*********************************************************
  * draw online/offline icon
  *********************************************************/
 function set_online() {
-	$(".online").show();
-	$(".offline").hide();
+
+	$(".offline")
+		.addClass("online")
+		.removeClass("offline");
 }
 
 
 function set_offline() {
-	$(".online").hide();
-	$(".offline").show();
+
+	$(".online")
+		.addClass("offline")
+		.removeClass("online");
 }
 
 
@@ -210,11 +420,16 @@ function set_offline() {
 /*********************************************************
  * draw video position bar
  *********************************************************/
-function position_bar(data) {
+function position_bar() {
 
-	if (data.time !== undefined) {
+	if (playerData.get("time") !== undefined) {
 
-		set_position(data.time);
+		// seek operation: reset seek marker
+		if (playerData.get["cmd"] == "seek") {
+			current_seek = false;
+		}
+
+		set_position(playerData.get("time"));
 
 	}
 }
@@ -225,22 +440,45 @@ function set_position (pos) {
 	// get position div
 	position = $(".position");
 
-	// create position bar if not exists
-	if (!$(".position_bar").length) {
-		$(position).append('<div class="position_bar"></div>');
-	}
-
 	// get max size
 	width = $(position).width();
 	height = $(position).height();
+
+
+	if (current_seek === false) {
+//		$(".seek").remove();
+	}
+
+
+	// add seek event
+	position
+		.unbind("click")
+		.bind("click", function (e) {
+
+			var parentOffset = $(this).offset();
+			var relX = e.pageX - parentOffset.left;
+			current_seek = (relX / width) * 100;
+
+			set_seek();
+		});
+
+
+	// create position bar if not exists
+	if (!$(".position_bar").length) {
+		$(position)
+			.append('<div class="position_bar"></div>');
+	}
 
 	// set bar height
 	bar = $(".position_bar");
 	$(bar).height(height);
 
+
 	// update progression bar
 	if (pos) {
-		$(bar).css("width",(width / 100) * pos);
+		$(bar)
+			.attr("pos", pos)
+			.css("width",(width / 100) * pos);
 	}
 	else {
 		$(bar).css("width",0);
@@ -253,32 +491,242 @@ function set_position (pos) {
  *********************************************************/
 function display_file_name() {
 
+
 	// update file played
 	if (current_file != undefined) {
-		$(".current_file").text(current_file);
+		$(".current_file").text(filename(current_file));
 
 		$(".file").removeClass("active");
+		$(".playlist").removeClass("active");
 		$("[name='"+current_file+"']").addClass("active");
 	}
 
-	// file stopped
+	// no current file
 	else {
 		$(".current_file").empty();
-
 		$(".file").removeClass("active");
-		$(".filename").empty();
 	}
+
+
+	// film info selected
+	if ($("div[name='file']").text() != "") {
+		$("#info").removeClass("inactive");
+	}
+	else {
+		$("#info").addClass("inactive");
+	}
+
+
+	// update active playlist
+	if (current_playlist != undefined) {
+		$(".current_playlist").text(filename(current_playlist));
+
+		$(".playlistfile").removeClass("active");
+		$("[name='"+current_playlist+"']").addClass("active");
+	}
+
+	else {
+		$(".current_playlist").empty();
+
+		$(".playlistfile").removeClass("active");
+	}
+
+
+	// update screensaver
+	if (scr = playerData.get("screensaver")) {
+
+		// screensaver file
+		$(".screensaver")
+			.text(filename(scr["screensaver_file"]))
+			.attr("file", scr["screensaver_file"])
+			.unbind("click");
+
+
+		if (scr["screensaver_file"] != "") {
+
+			if (scr["enable_screensaver"] == true)
+				$(".screensaver").removeClass("lightened");
+			else
+				$(".screensaver").addClass("lightened");
+
+
+			$(".screensaver")
+				.removeClass("inactive")
+				.bind("click", function () {
+
+					if (scr["enable_screensaver"] == true)
+						send_command("disable_screensaver");
+					else
+						send_command("enable_screensaver");
+				});
+		}
+
+		// no screensaver file: inactivate field
+		else {
+			$(".screensaver")
+				.text("")
+				.addClass("inactive");
+		}
+	}
+
 
 }
 
 
 /*********************************************************
- * mark current filename
+ * display video file configuration data
  *********************************************************/
-function display_length(length) {
+function display_volume(volume) {
 
-	if (length != undefined) {
-		$(".length").text(length);
+	if (volume) {
+
+		if (!$(".current_volume").length)
+			$("#volume").append("<div class='current_volume'></div>");
+
+		// get max size
+		height = $("#volume").height();
+
+		$(".current_volume")
+			.css("top", height - ((volume / 100) * height))
+			.css("height", (volume / 100) * height);
+	}
+
+	else
+		$("#volume").empty();
+
+}
+
+
+/*********************************************************
+ * display video file configuration data
+ *********************************************************/
+function display_info(data) {
+
+	fileName = data["file"];
+
+	if (filename != undefined) {
+
+		$("div[name='file']")
+			.text(fileName);
+
+
+		// add event to set as screensaver
+		$("[name='screensaver_check']")
+			.prop("checked", false)
+			.unbind("click")
+			.bind("click", function () {
+
+				// switched on
+				if ($(this).is(":checked")) {
+					send_command("set_screensaver", {file: fileName});
+				}
+
+				// switched off
+				else {
+					$(".screensaver").removeAttr("file");
+					send_command("set_screensaver", {file: ""});
+				}
+
+			});
+
+
+		// get current screensaver
+		screensaver = $(".screensaver").attr("file");
+
+		// mark if file is screensaver
+		if (screensaver == data["file"]) {
+
+			$("[name='screensaver_check']")
+				.prop("checked", true);
+		}
+	}
+
+
+	// clear fields
+	$("[edit]").find(".value").text("");
+
+
+	// bind edit events
+	$("div[edit]")
+		.unbind("click")
+		.bind("click", function () {
+
+			$(this).unbind("click");
+
+			edit_field = $(this).children(".value");
+			edit_value = edit_field.text();
+
+			edit_field
+				.empty()
+				.append("<input type='text' value='" + edit_value + "'>")
+				.bind("keyup", function (e) {
+					switch (e.which) {
+
+						// enter value
+						case 13:
+							write_config(fileName);
+							break;
+
+						// escape
+						case 27:
+// DOTO is chanched data loaded correctly? 
+							update_display();
+							break;
+					}
+
+				});
+
+			edit_field.find("input")
+				.focus();
+		});
+
+
+	/* insert informations */
+	$.each(data["audio"], function (k, v) {
+		$("*[name='audio"+k+"']").find(".value").text(v);
+	});
+
+	$.each(data["video"], function (k, v) {
+		$("*[name='video_"+k+"']").find(".value").text(v);
+	});
+}
+
+
+
+/*********************************************************
+ * send video info data to be written
+ *********************************************************/
+function write_config(file) {
+
+	data = {};
+	data["file"] = file;
+
+	// get key: values from divs
+	$.each($("div[edit]"), function () {
+
+		label = $(this).attr("name");
+		val = $(this).children(".value").text();
+		input_val = $(this).find("input").val();
+
+		if (input_val != undefined)
+			val = input_val;
+
+		data[label] = val;
+	});
+
+
+	/* send to player */
+	send_command("writeinfo", data);
+}
+
+
+/*********************************************************
+ * display video length
+ *********************************************************/
+function display_length() {
+
+	if (playerData.get("length") != undefined) {
+		$(".length").text(playerData.get("length"));
 	}
 	else {
 		$(".length").empty();
@@ -289,9 +737,8 @@ function display_length(length) {
 /*********************************************************
  * list files
  *********************************************************/
-function list_files(data) {
+function list_files(dir, files) {
 
-	files = data.files;
 
 	if (files) {
 		$("#files").empty();
@@ -302,21 +749,18 @@ function list_files(data) {
 		// list of files
 		if (files != undefined) {
 
-			// ul = $('<ul class="file_list"></ul>');
-			// $("#directory").append(ul);
-
-
 			$.each(files, function () {
 
-				li = $('<li class="file" name="' + this + '">' + this + '</li>');
+				li = $('<li class="file" name="' + joinpath([dir, this]) + '">' + this + '</li>');
 				li
 					.css("cursor", "pointer")
 					.bind("click", function () {
 
-						// send_command("play", $(this).attr("name"));
 						if ($(this).attr("name")) {
 							current_file = $(this).attr("name");
 						}
+
+						send_command("fileinfo", {file: current_file});
 
 					});
 
@@ -330,12 +774,53 @@ function list_files(data) {
 
 
 /*********************************************************
+ * list playlist files
+ *********************************************************/
+function list_pl_files(dir, files) {
+
+
+	if (files) {
+		$("#pl_files").empty();
+
+		ul = $('<ul class="file_list"></ul>');
+		$("#pl_files").append(ul);
+
+		// list of files
+		if (files != undefined) {
+
+			// ul = $('<ul class="file_list"></ul>');
+			// $("#directory").append(ul);
+
+			$.each(files, function () {
+
+				li = $('<li class="playlistfile" name="' + this + '">' + this + '</li>');
+				li
+					.css("cursor", "pointer")
+					.bind("click", function () {
+
+						if ($(this).attr("name")) {
+
+							send_command("playlist", {file: joinpath([dir, $(this).attr("name")])});
+							current_playlist = $(this).attr("name");
+						}
+
+/*						send_command("fileinfo", {file: current_file});*/
+
+					});
+
+				ul.append(li);
+			});
+
+		}
+		$("#pl_files").append(ul);
+	}
+}
+
+
+/*********************************************************
  * list directories
  *********************************************************/
-function list_dirs(data) {
-
-	dir = data.dir;
-	dirs = data.dirs;
+function list_dirs(dir, dirs) {
 
 	// get current dir
 	olddir = $(".dir_name").text();
@@ -356,7 +841,8 @@ function list_dirs(data) {
 			.bind("click", function () {
 
 				current_file = "";
-				send_command("up", $(this).attr("name"));
+				send_command("up", {file: $(this).attr("name")});
+//				display_filename();
 
 			});
 
@@ -373,7 +859,7 @@ function list_dirs(data) {
 					.css("cursor", "pointer")
 					.bind("click", function () {
 
-						send_command("cd", $(this).attr("name"));
+						send_command("cd", {file: $(this).attr("name")});
 
 					});
 
@@ -385,6 +871,89 @@ function list_dirs(data) {
 	}
 }
 
+
+/*********************************************************
+ * display playlist
+ *********************************************************/
+function display_playlist() {
+
+	if (playerData.get("cmd") == "playlist") {
+
+		files = playerData.get("playlist");
+		pl_options = playerData.get("options");
+
+		$("#playlist_content").empty();
+
+		ol = $('<ol class="playlist"></ol>');
+		$("#playlist_content").append(ol);
+
+		// list of files
+		if (files != undefined) {
+
+			$.each(files, function () {
+
+				li = $('<li class="playlist" name="' + this + '">' + this + '</li>');
+				li
+					.css("cursor", "pointer")
+					.bind("click", function () {
+
+						if ($(this).attr("name")) {
+							current_file = $(this).attr("name");
+						}
+
+						send_command("fileinfo", {file: current_file});
+
+					});
+
+				ol.append(li);
+			});
+
+		}
+		$("#playlist_content").append(ol);
+	}
+}
+
+
+
+
+/*********************************************************
+ * display filename with shortened path
+ *********************************************************/
+function filename(name) {
+
+	if (name != undefined)
+		return name.split("/").pop();
+
+}
+
+
+/*********************************************************
+ * join an array of path snippets togeather
+ *********************************************************/
+function joinpath(pathArray) {
+
+	var retArray = [];
+	var root = false;
+
+	// split all path elements
+	$.each(pathArray, function () {
+		retArray = retArray.concat(this.split("/"));
+	});
+
+	// check for root /
+	if ((retArray[0]) == "") root = true;
+
+	// remove empty elements
+	retArray = retArray.filter(function (v) { return v != "" });
+
+	// add root /
+	if (root)
+		retArray.unshift("");
+
+	return retArray.join("/");
+}
+
+
 /*********************************************************
  * timed poll function
  *********************************************************/
@@ -392,8 +961,7 @@ function start_timer(duration) {
 
 	setTimeout(function() {
 
-		send_command("position", "");
-		send_command("status");
+		send_command("position");
 		start_timer(duration);
 
 	}, duration);
