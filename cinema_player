@@ -1,4 +1,4 @@
-#!/usr/bin/pypy
+#!/usr/bin/python
 
 import sys, os
 from module.main import main

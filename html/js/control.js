@@ -660,6 +660,7 @@ function display_info(data) {
 				.empty()
 				.append("<input type='text' value='" + edit_value + "'>")
 				.bind("keyup", function (e) {
+
 					switch (e.which) {
 
 						// enter value

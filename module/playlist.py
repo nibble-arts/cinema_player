@@ -55,7 +55,7 @@ class Playlist:
 		self.playlist.write(path)
 
 
-	# get option from ṕlaylist
+# get option from playlist
 	def option(self, option_name):
 
 		for opt in self.playlist.items("options"):

@@ -22,6 +22,8 @@
 
 	<link rel="stylesheet" type="text/css" href="control.css">
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 	<script>
 		$(document).ready(function(){ 
 			init();
@@ -43,7 +45,7 @@
 		</div>
 
 		<div id="content" class="online">
-			<div id="file_nav" >
+			<div id="file_nav" class="column">
 				<div id="file_nav_content">
 					<div class="legend">Verzeichnisse</div>
 					<div id="directory"></div>
@@ -56,7 +58,7 @@
 				</div>
 			</div>
 
-			<div id="file_info">
+			<div id="file_info" class="column">
 				<div class="legend">Filmeinstellungen</div>
 
 				<div id="info">
@@ -103,14 +105,15 @@
 				</div>
 			</div>
 
-			<div id="playlist">
+			<div id="playlist" class="column">
 				<div class="legend">Playlist</div>
 
 				<div id="playlist_content">
 				</div>
 			</div>
+
 		</div>
-		<!-- <div style="clear:both"/> -->
+		<div style="clear:both"></div>
 
 		<!-- <div class="filename"></div> -->
 

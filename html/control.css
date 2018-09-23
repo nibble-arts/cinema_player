@@ -23,15 +23,36 @@ ul, li, ol {
 	padding: 0;
 }
 
-
 #page {
 	margin: 0;
 	padding: 10px;
 }
 
+.column {
+    display: block;
+/*    overflow: scroll;*/
+}
+
+@media only screen and (max-width: 900px) {
+    .column {
+	    width: 100%;
+    }
+}
+
+@media only screen and (min-width: 600px) and (max-width: 900px) {
+    .column {
+	    width: 50%;
+    }
+}
+
+@media only screen and (min-width: 900px) {
+    .column {
+	    width: 33%;
+    }
+}
+
 #head {
-	position: absolute;
-	display: inline-block;
+	display: block;
 	height: 40px;
 	left: 0;
 	right: 0;
@@ -39,44 +60,42 @@ ul, li, ol {
 }
 
 #head_content {
-	position: absolute;
+/*	position: absolute;
 
 	left: 10px;
-	right: 10px;
+	right: 10px;*/
 }
 
 #content {
-	position: relative;
-	top: 50px;
+/*	position: relative;
+	top: 50px;*/
+    display: block;
 }
 
-#file_nav, #file_info, #playlist {
+/*#file_nav, #file_info, #playlist {
 	width: 33%;
-}
+}*/
 
 #file_nav {
-	position: relative;
 	float: left;
 }
 
 #file_info {
-	position: relative;
 	float: left;
 }
 
 #playlist {
-	position: relative;
 	float: left;
 }
 
 #control {
-	position: absolute;
+/*	position: absolute;
 	left: 0;
-	bottom: 0;
-	/*height: 80px;*/
+	bottom: 0;*/
+	/*height: 80px;
 	left: 0;
-	right: 0;
-	display: inline-block;
+	right: 0;*/
+	display: block;
 	border-top: 1px solid #a0a0a0;
 	background-color: #505050;
 }

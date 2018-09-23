@@ -27,6 +27,7 @@ class Video:
 		# set options
 		self.player.add_command_option(option='-osdlevel', value='0')
 		self.player.add_command_option(option='-nolirc')
+		#self.player.add_command_option(option='-rootwin')
 		self.player.add_command_option(option='-fs')
 		self.player.add_command_option(option='-geometry', value=position)
 		self.player.add_command_option(option='-vf', value='crop='+crop)
