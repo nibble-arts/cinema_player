@@ -174,10 +174,14 @@ class Api:
 
 
     def get_files(self, dir, types):
-        return [f for f in listdir(self.current_dir) if (isfile(join(self.current_dir, f)) and self.file_type(f, types) == True and not f.startswith("."))]
+
+        files = [f for f in listdir(self.current_dir) if (isfile(join(self.current_dir, f)) and self.file_type(f, types) == True and not f.startswith("."))]
+        return sorted(files)
 
     def get_dirs(self, dir):
-        return [f for f in listdir(self.current_dir) if (isdir(join(self.current_dir, f)) and not f.startswith("."))]
+
+        dirs = [f for f in listdir(self.current_dir) if (isdir(join(self.current_dir, f)) and not f.startswith("."))]
+        return sorted(dirs)
 
 
 
