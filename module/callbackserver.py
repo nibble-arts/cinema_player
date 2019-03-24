@@ -10,7 +10,8 @@ from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 # @version      1.0
 # @copyright    2018
 
-#==========================================================
+
+# ==========================================================
 # create a http handler
 
 class HttpHandler(BaseHTTPRequestHandler):
@@ -34,7 +35,7 @@ class HttpHandler(BaseHTTPRequestHandler):
         self.wfile.write(response["response"])
 
 
-#==========================================================
+# ==========================================================
 # A http server using a callback class for GET requests
 
 class CallbackHttpServer(HTTPServer):
@@ -45,7 +46,7 @@ class CallbackHttpServer(HTTPServer):
         self.callback = callback
 
 
-#==========================================================
+# ==========================================================
 # The server main class
 #   Call with the server_name, server_port and a callback class
 #
@@ -59,14 +60,14 @@ class CallBackServer:
         self.port = port
         self.callback = callback
 
-        self.source = "http://" + self.server_name# + ":" + str(self.port)
-
+        self.source = "http://" + self.server_name
+        # + ":" + str(self.port)
 
     # start the web server
     # terminate with keyboard interrupt
     def start(self):
 
-        print "Wait for network connection"
+        print("Wait for network connection")
         self.wait_for_internet_connection()
 
 #        print self.get_ip_address('lo')
@@ -74,7 +75,7 @@ class CallBackServer:
 
         server = CallbackHttpServer((self.server_name, self.port), HttpHandler, self.callback)
 
-        print time.asctime(), "Server Starts - %s:%s" % (self.server_name, self.port)
+        print(time.asctime(), "Server Starts - %s:%s" % (self.server_name, self.port))
         try:
             server.serve_forever()
 
@@ -82,9 +83,7 @@ class CallBackServer:
             pass
 
         server.server_close()
-        print time.asctime(), "Server Stops - %s:%s" % (self.server_name, self.port)
-
-
+        print(time.asctime(), "Server Stops - %s:%s" % (self.server_name, self.port))
 
     # wait for ethernet connection
     def wait_for_internet_connection(self):
@@ -92,7 +91,7 @@ class CallBackServer:
         while True:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                s.bind((self.server_name,self.port))
+                s.bind((self.server_name, self.port))
                 s.close()
                 return
 

@@ -194,7 +194,7 @@ function send_command(cmd, data) {
  *********************************************************/
 function set_data(data) {
 
-	playerData.reset(["dirinfo", "volume"]);
+	playerData.reset(); //["dirinfo", "volume"]
 	playerData.update(data);
 
 }
@@ -309,6 +309,7 @@ function set_stop() {
 
 	$("#b_volup")
 		.addClass("disabled")
+
 }
 
 
@@ -422,16 +423,24 @@ function set_offline() {
  *********************************************************/
 function position_bar() {
 
-	if (playerData.get("time") !== undefined) {
+	if (playerData.get("position") !== undefined) {
 
 		// seek operation: reset seek marker
 		if (playerData.get["cmd"] == "seek") {
 			current_seek = false;
 		}
 
-		set_position(playerData.get("time"));
+		set_position(playerData.get("position"));
 
 	}
+
+	if (playerData.get("time") !== undefined) {
+        set_timecode(playerData.get("time"), playerData.get("length"));
+	}
+	else {
+        set_timecode(0,0);
+	}
+
 }
 
 
@@ -473,7 +482,6 @@ function set_position (pos) {
 	bar = $(".position_bar");
 	$(bar).height(height);
 
-
 	// update progression bar
 	if (pos) {
 		$(bar)
@@ -485,6 +493,40 @@ function set_position (pos) {
 	}
 }
 
+
+function set_timecode(time, length) {
+
+    timecode = $("#time");
+
+    if (parseInt(time) != NaN) {
+
+        timecode
+            .text(calc_timecode(time));
+    }
+    else {
+        timecode.text("00:00:00");
+    }
+
+    len = $("#length");
+
+    if (parseInt(length) != NaN) {
+
+        len
+            .text(calc_timecode(length));
+    }
+    else {
+        len.text("00:00:00");
+    }
+}
+
+
+function calc_timecode(sec) {
+
+    var timecode = new Date(null);
+    timecode.setSeconds(sec);
+
+    return timecode.toISOString().substr(11,8);
+}
 
 /*********************************************************
  * mark current filename

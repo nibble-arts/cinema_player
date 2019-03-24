@@ -9,9 +9,7 @@ from os.path import isfile, isdir, join
 
 import ConfigParser
 
-import json
-
-from play import Play 
+from play import Play
 from response import Response
 from playlist import Playlist
 
@@ -55,7 +53,6 @@ class Api:
     video_types = ["mp4", "mpeg", "mov"]
     pl_types = ["playlist"]
 
-
     # create an api/html object
     #    options{"url": calling http_url, "api_name": page name for api calls, "html_root": root path for html pages}
     def __init__(self, options):
@@ -63,21 +60,25 @@ class Api:
         self.player_cfg = ConfigParser.ConfigParser()
         self.player_cfg.read('config/player.cfg')
 
+        print self.player_cfg
+
+        # check for player settings in the configuration file
+        if not self.player_cfg.has_section("player"):
+            print("no player configuration found")
+            sys.exit()
+
+        # check for player settings in the configuration file
+        if not self.player_cfg.has_section("screens"):
+            print("no screen configuration found")
+            sys.exit()
+
         self.screensaver_file = self.player_cfg.get("player", "screensaver")
         self.enable_screensaver = self.player_cfg.getboolean("player", "enable_screensaver")
 
-
-       # load playlist
+        # load play list
         self.playlist = Playlist()
 #        self.playlist.name(options["playlist"])
 #        self.playlist.load()
-
-
-        # get player settings from the configuration file
-        if not self.player_cfg:
-            print "no player configuration found"
-            sys.exit()
-
 
         # init variables
         self.basePath = os.path.dirname("..")
@@ -86,21 +87,18 @@ class Api:
         self.html_root = options["html_root"]
         self.current_dir = options["base_dir"]
 
-
         # create response object
         self.response = Response()
 
-
-    #==========================================================
+    # ==========================================================
     # write player configuration file
     def writeplayer(self):
 
         with open('config/player.cfg', 'wb') as configfile:
-            print "write config"
+            print("write config")
             self.player_cfg.write(configfile)
 
-
-    #==========================================================
+    # ==========================================================
     # call api or html pages, depending on the page path
     def get(self, url):
 
@@ -114,8 +112,7 @@ class Api:
         else:
             return self.html()
 
-
-    #==========================================================
+    # ==========================================================
     # call api or html pages, depending on the page path
     def post(self, url):
 
@@ -129,9 +126,7 @@ class Api:
         else:
             return self.html()
 
-
-
-    #==========================================================
+    # ==========================================================
     # check for valid video formats
     def file_type(self, file, types):
 
@@ -140,8 +135,7 @@ class Api:
 
         return False
 
-
-    #==========================================================
+    # ==========================================================
     # get video file information from config file
     def read_info(self, file):
 
@@ -163,7 +157,7 @@ class Api:
             for info in self.info.items("video"):
                 video.set(info[0], info[1])
 
-            #collect audio data
+            # collect audio data
             for info in self.info.items("audio"):
                 audio.set(info[0], info[1])
 
@@ -172,23 +166,18 @@ class Api:
 
         return response
 
-
-    def get_files(self, dir, types):
+    def get_files(self, types):
 
         files = [f for f in listdir(self.current_dir) if (isfile(join(self.current_dir, f)) and self.file_type(f, types) == True and not f.startswith("."))]
         return sorted(files)
 
-    def get_dirs(self, dir):
+    def get_dirs(self):
 
         dirs = [f for f in listdir(self.current_dir) if (isdir(join(self.current_dir, f)) and not f.startswith("."))]
         return sorted(dirs)
 
-
-
-
-
-    #==========================================================
-    #==========================================================
+    # ==========================================================
+    # ==========================================================
     # playback control
 
     # start playback of file
@@ -203,7 +192,6 @@ class Api:
 
         self.response.set("file", filename)
 
-
     # stop playback
     def stop(self):
 
@@ -212,48 +200,41 @@ class Api:
         if isinstance(self.player, Play):
 
             self.player.quit()
-            self.player = None;
+            self.player = None
 
             # call autoplay on stopping
 #            self.autoplay()
 
-
-    # autoplay screensaver or next playlist entry
+    # autoplay screen saver or next playlist entry
     def autoplay(self):
 
-        # check for screensaver file
+        # check for screen saver file
         if not os.path.isfile(self.screensaver_file):
             self.screensaver_file = ""
             self.enable_screensaver = False
 
- 
-        # start screensaver if enabled
+        # start screen saver if enabled
         if self.screensaver_file and self.enable_screensaver != False:
             self.play(self.screensaver_file)
             self.screensaver = True
 
-
-
-    #==========================================================
-    #==========================================================
+    # ==========================================================
+    # ==========================================================
     # call api interface
     def api(self):
 
-
-        #==============================
+        # ==============================
         # reset response
         self.response.reset()
 
-
-        #==============================
+        # ==============================
         # get file parameter
-        if (self.query.get("file")):
+        if self.query.get("file"):
             filepath = os.path.join(self.current_dir, self.query.get("file")[0])
         else:
             filepath = ""
 
-
-        #====================================================
+        # ====================================================
         # COMMANDS
         #
         # filesystem
@@ -276,20 +257,17 @@ class Api:
         #   stop:       stop playback
         #   pause:      pause playback
         #   position:   get playback position
-        #====================================================
+        # ====================================================
 
-
-        #==============================
+        # ==============================
         # cmd found
-        if (self.query.get("cmd")):
+        if self.query.get("cmd"):
 
-
-            #==============================
+            # ==============================
             # status and command
-            #==============================
+            # ==============================
             cmd = self.query.get("cmd")[0]
             self.response.set("cmd", cmd)
-
 
             # add status to response
             if isinstance(self.player, Play):
@@ -303,58 +281,53 @@ class Api:
             else:
                 self.response.set("status", "stop")
 
-
-            #==============================
+            # ==============================
             # list directory
-            #==============================
-            if (cmd == "list"):
+            # ==============================
+            if cmd == "list":
 
                 self.response.set("dirinfo", self.read_file_info())
 
-
-            #==============================
+            # ==============================
             # change directory
             #   param: file
-            #==============================
-            if (cmd == "cd"):
+            # ==============================
+            if cmd == "cd":
 
-                newDir = self.current_dir
+                new_dir = self.current_dir
 
-                if (not self.current_dir.endswith("/")):
-                    newDir = newDir + "/"
+                if not self.current_dir.endswith("/"):
+                    new_dir = new_dir + "/"
 
-                self.current_dir = newDir + self.query.get("file")[0] + "/"
+                self.current_dir = new_dir + self.query.get("file")[0] + "/"
 
                 self.response.set("dirinfo", self.read_file_info())
 
-
-            #==============================
+            # ==============================
             # go directory up
-            #==============================
-            if (cmd == "up"):
+            # ==============================
+            if cmd == "up":
 
-                newDir = self.current_dir
+                new_dir = self.current_dir
 
-                if (self.current_dir.endswith("/")):
-                    newDir = self.current_dir[:-1]
+                if self.current_dir.endswith("/"):
+                    new_dir = self.current_dir[:-1]
 
-                self.current_dir = '/'.join(newDir.split("/")[:-1])+'/'
+                self.current_dir = '/'.join(new_dir.split("/")[:-1])+'/'
 
                 self.response.set("dirinfo", self.read_file_info())
 
-
-            #==============================
+            # ==============================
             # get file informations file data
-            #==============================
-            if (cmd == "fileinfo"):
+            # ==============================
+            if cmd == "fileinfo":
                 self.response.set("fileinfo", self.read_info(filepath))
 
-
-            #==============================
+            # ==============================
             # write
             #   param: file, video/audio parameters
-            #==============================
-            if (cmd == "writeinfo"):
+            # ==============================
+            if cmd == "writeinfo":
 
                 filename = os.path.splitext(filepath)[0] + ".cfg"
 
@@ -376,11 +349,10 @@ class Api:
 
                 self.response = self.read_info(filepath)
 
-
-            #==============================
-            # set/enable/disable screensaver autoplay
-            #==============================
-            if (cmd == "set_screensaver"):
+            # ==============================
+            # set/enable/disable screen saver auto play
+            # ==============================
+            if cmd == "set_screensaver":
 
                 self.player_cfg.set("player", "screensaver", filepath)
                 self.player_cfg.set("player", "enable_screensaver", False)
@@ -389,14 +361,14 @@ class Api:
                 self.enable_screensaver = False
                 self.writeplayer()
 
-            if (cmd == "enable_screensaver"):
+            if cmd == "enable_screensaver":
 
                 self.player_cfg.set("player", "enable_screensaver", True)
 
                 self.enable_screensaver = True
                 self.writeplayer()
 
-            if (cmd == "disable_screensaver"):
+            if cmd == "disable_screensaver":
 
                 self.player_cfg.set("player", "enable_screensaver", False)
 
@@ -412,13 +384,12 @@ class Api:
 
             self.response.set("screensaver", scr)
 
-
-            #==============================
+            # ==============================
             # get playlist
             #   param: none -> return playlist
             #   param: file -> load new playlist
-            #==============================
-            if (cmd == "playlist"):
+            # ==============================
+            if cmd == "playlist":
 
                 # if filepath: load new playlist
                 if filepath:
@@ -427,15 +398,13 @@ class Api:
 
                 self.response = self.playlist.list()
 
-
-
-            #==============================
+            # ==============================
             # add to active playlist
             #   param: file -> video filename
             #   param: pos -> position in the playlist
             #          if no position, append to end
-            #==============================
-            if (cmd == "addtoplaylist"):
+            # ==============================
+            if cmd == "addtoplaylist":
 
                 if filepath:
 
@@ -447,78 +416,71 @@ class Api:
                     else:
                         self.response = self.playlist.add(filepath)
 
-
-            #==============================
+            # ==============================
             # removefromplaylist
             #   param: pos -> position of file
             #       to in the playlist to be removed
-            #==============================
-            if (cmd == "removefromplaylist"):
+            # ==============================
+            if cmd == "removefromplaylist":
 
                 self.response = self.playlist.remove(self.query.get("pos")[0])
 
-
-
-            #====================================================
-            #====================================================
+            # ====================================================
+            # ====================================================
             # start playback
-            #====================================================
-            #====================================================
-            if (os.path.isfile(filepath)):
+            # ====================================================
+            # ====================================================
+            if os.path.isfile(filepath):
 
                 # start playback if file exists
-                if (cmd == "play"):
+                if cmd == "play":
                     self.play(filepath)
 
-
-            #====================================================
+            # ====================================================
             # commands to active player
-            #====================================================
+            # ====================================================
 
             # player is active
             if isinstance(self.player, Play):
 
                 # add playing filename
                 self.response.set("file", self.player.get_file_name())
-                self.response.set("time", self.player.position())
+                self.response.set("position", self.player.position())
+                self.response.set("length", self.player.length())
+                self.response.set("time", self.player.time())
                 self.response.set("volume", self.player.get_volume())
 
-                #==============================
+                # ==============================
                 # toggle pause/play 
-                #==============================
-                if (cmd == "pause"):
+                # ==============================
+                if cmd == "pause":
                     self.player.pause()
 
-
-                #==============================
+                # ==============================
                 # stop playback
-                #==============================
-                if (cmd == "stop"):
+                # ==============================
+                if cmd == "stop":
                     self.stop()
 
-
-                #==============================
+                # ==============================
                 # seek position
-                #==============================
-                if (cmd == "seek"):
+                # ==============================
+                if cmd == "seek":
                     self.player.seek(self.query.get("position")[0])
 
-
-                #==============================
+                # ==============================
                 # set volume
-                #==============================
-                if (cmd == "volume"):
+                # ==============================
+                if cmd == "volume":
                     self.player.volume(self.query.get("volume")[0])
-
 
             # no active player
             else:
                 self.response.set("warning", "no player")
-                self.response.set("time", 0)
+                self.response.set("position", 0)
                 self.player = None
 
                 self.autoplay()
-
 
         """Respond to a GET request."""
 
@@ -528,16 +490,13 @@ class Api:
             "response": self.response.render()
         })
 
-
-
-
-    #==========================================================
-    #==========================================================
+    # ==========================================================
+    # ==========================================================
     # call html pages
     def html(self):
 
         # no path, try index.html
-        if (self.path == ""):
+        if self.path == "":
             self.path = "index.html"
 
         # add http base to path
@@ -547,7 +506,7 @@ class Api:
         ctype = self.guess_type(self.path)
 
         # look for file and render
-        if (os.path.isfile(os.path.join(http_path, self.path))):
+        if os.path.isfile(os.path.join(http_path, self.path)):
 
             """Return page"""
 
@@ -561,7 +520,6 @@ class Api:
                 "content-type": ctype,
                 "response": response
             })
-
 
         # no page found -> 404
         else:
@@ -579,39 +537,35 @@ class Api:
                 "response": response
             })
 
-
     def __create_query(self, url):
 
         # remove leading /
-        if (url.startswith("/")):
+        if url.startswith("/"):
             url = url[1:]
 
         self.query = {}
         self.path = url.split("?")
 
         # has self.query -> parse self.query
-        if (len(self.path) > 1):
+        if len(self.path) > 1:
             self.query = urlparse.parse_qs(self.path[1])
-
 
         # get path
         self.path = self.path[0]
-
 
     def read_file_info(self):
 
         dirinfo = Response()
 
         dirinfo.set("dir", self.current_dir)
-        dirinfo.set("dirs", self.get_dirs(self.current_dir))
-        dirinfo.set("files", self.get_files(self.current_dir, self.video_types))
-#        dirinfo.set("playlist", self.playlist.list())
-        dirinfo.set("pl_files", self.get_files(self.current_dir, self.pl_types))
+        dirinfo.set("dirs", self.get_dirs())
+        dirinfo.set("files", self.get_files(self.video_types))
+        # dirinfo.set("playlist", self.playlist.list())
+        dirinfo.set("pl_files", self.get_files(self.pl_types))
 
         return dirinfo
 
-
-    def guess_type(s, path):
+    def guess_type(self, path):
 
         """Guess the type of a file.
 
@@ -628,24 +582,26 @@ class Api:
 
         base, ext = posixpath.splitext(path)
 
-        if ext in s.extensions_map:
-            return s.extensions_map[ext]
+        if ext in self.extensions_map:
+            return self.extensions_map[ext]
 
         ext = ext.lower()
 
-        if ext in s.extensions_map:
-            return s.extensions_map[ext]
+        if ext in self.extensions_map:
+            return self.extensions_map[ext]
 
         else:
-            return s.extensions_map['']
+            return self.extensions_map['']
 
     if not mimetypes.inited:
-        mimetypes.init() # try to read system mime.types
+        mimetypes.init()
+        # try to read system mime.types
 
     extensions_map = mimetypes.types_map.copy()
 
     extensions_map.update({
-        '': 'application/octet-stream', # Default
+        '': 'application/octet-stream',
+        # Default
         '.py': 'text/plain',
         '.c': 'text/plain',
         '.h': 'text/plain',

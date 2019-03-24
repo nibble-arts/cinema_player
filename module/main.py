@@ -1,6 +1,6 @@
 from callbackserver import CallBackServer
 from api import Api
-import ConfigParser, os
+import ConfigParser
 
 
 # ****************************************************
@@ -27,15 +27,15 @@ def main():
 		host_cfg = dict(config.items('server'))
 
 		# create api
-		#	apiName: http path to api
-		#	httpRoot: relative path to html files
+		# apiName: http path to api
+		# httpRoot: relative path to html files
 		api_class = Api(api_cfg)
-		
+
 		# create web server
 		# host_name, port, callback
 		server = CallBackServer(host_cfg["host"], int(host_cfg["port"]), api_class)
 		server.start()
 
 	else:
-		print "config/config.cfg not found"
-		print "abort Cinema Player"
+		print("config/config.cfg not found")
+		print("abort Cinema Player")

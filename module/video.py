@@ -13,6 +13,7 @@ from mplayer_control.player import Player
 import time
 import atexit
 
+
 class Video:
 
 	player = None
@@ -27,7 +28,7 @@ class Video:
 		# set options
 		self.player.add_command_option(option='-osdlevel', value='0')
 		self.player.add_command_option(option='-nolirc')
-		#self.player.add_command_option(option='-rootwin')
+		# self.player.add_command_option(option='-rootwin')
 		self.player.add_command_option(option='-fs')
 		self.player.add_command_option(option='-geometry', value=position)
 		self.player.add_command_option(option='-vf', value='crop='+crop)
@@ -35,43 +36,35 @@ class Video:
 		# create player process
 		self.player.create_new_process()
 
-
 	# start video
-	def play (self):
+	def play(self):
 		if isinstance(self.player, Player):
 			self.player.loadfile('"'+self.file+'"')
 
-
 	# pause / resume video
-	def pause (self):
+	def pause(self):
 		if isinstance(self.player, Player):
 			self.player.pause()
 
-
 	# stop video
-	def stop (self):
+	def stop(self):
 		if isinstance(self.player, Player):
 			self.player.stop()
 
-
 	# seek position
-	def seek (self, pos):
+	def seek(self, pos):
 		return self.player.seek(float(pos), 1)
 
-
-	def volume (self, volume):
+	def volume(self, volume):
 		return self.player.volume(int(volume))
 
-
-	def get_volume (self):
+	def get_volume(self):
 		return self.player.properties.volume
 
-
 	# get length of video in seconds
-	def length(self):
+	def get_length(self):
 		if isinstance(self.player, Player):
 			return self.player.get_time_length()
-
 
 	# gete play position in seconds
 	def get_time_pos(self):
@@ -80,7 +73,6 @@ class Video:
 			self.lasttime = self.player.properties.time_pos
 			return self.player.properties.time_pos
 
-
 	# get play position as percentage (0-100)
 	def get_percent_pos(self):
 		if isinstance(self.player, Player):
@@ -88,20 +80,18 @@ class Video:
 			self.lasttime = self.player.properties.time_pos
 			return self.player.properties.percent_pos
 
-
 	# get file name
 	def get_file_name(self):
 		if isinstance(self.player, Player):
 			# if hasattr(self.player, "properties"):
 
 			# filename unavailabe -> kill player process
-			if (self.player.properties.filename == 'PROPERTY_UNAVAILABLE'):
+			if self.player.properties.filename == 'PROPERTY_UNAVAILABLE':
 				self.quit()
 
 			else:
 				return self.file
-#				return self.player.properties.filename
-
+				# return self.player.properties.filename
 
 	# get player status
 	def status(self):
@@ -109,12 +99,10 @@ class Video:
 		if not isinstance(self.player, Player):
 			return "stop"
 
-
 		if self.lasttime == self.player.properties.time_pos:
 			return "pause"
 		else:
 			return "play"
-
 
 	# quit player
 	def quit(self):
