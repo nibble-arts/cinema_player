@@ -46,3 +46,30 @@ fileinfo file="path"
 		}
 	}
 }
+
+LIGHTS:
+-------
+
+The player sends house lights as DMX. While a film is playing the
+"play" scene from config/player.cfg is faded in (typically dark).
+On stop the "stop" scene is faded in (typically full). Output is an
+Enttec DMX USB Pro compatible interface, or Art-Net.
+
+light scene="play"|"stop"
+-------------------------
+	Fade to the configured play or stop scene.
+
+light channel=<1-512> value=<0-255>
+------------------------------------
+	Fade a single DMX channel to value.
+
+Every API response includes:
+
+{ lights: {
+		enabled: true,
+		output: "enttec",
+		connected: true,
+		scene: "stop",
+		channels: { "1": 255 }
+	}
+}

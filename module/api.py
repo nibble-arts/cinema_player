@@ -12,6 +12,7 @@ import ConfigParser
 from play import Play
 from response import Response
 from playlist import Playlist
+from lights import Lights
 
 # ****************************************************
 # * This file is part of the Cinema Player scripts
@@ -74,6 +75,9 @@ class Api:
 
         self.screensaver_file = self.player_cfg.get("player", "screensaver")
         self.enable_screensaver = self.player_cfg.getboolean("player", "enable_screensaver")
+
+        # house lights over DMX (Enttec USB Pro or Art-Net)
+        self.lights = Lights.from_config(self.player_cfg)
 
         # load play list
         self.playlist = Playlist()
@@ -183,8 +187,8 @@ class Api:
     # start playback of file
     def play(self, filename):
 
-        # stop existing player
-        self.stop()
+        # stop existing player without bringing the house lights back up
+        self.stop(restore_lights=False)
 
         # create new player
         self.player = Play(filename, self.player_cfg)
@@ -192,8 +196,11 @@ class Api:
 
         self.response.set("file", filename)
 
+        # dim the house lights for the film
+        self.lights.play()
+
     # stop playback
-    def stop(self):
+    def stop(self, restore_lights=True):
 
         self.screensaver = False
 
@@ -204,6 +211,9 @@ class Api:
 
             # call autoplay on stopping
 #            self.autoplay()
+
+        if restore_lights:
+            self.lights.idle()
 
     # autoplay screen saver or next playlist entry
     def autoplay(self):
@@ -257,6 +267,9 @@ class Api:
         #   stop:       stop playback
         #   pause:      pause playback
         #   position:   get playback position
+        #
+        # lights
+        #   light:      scene=play|stop, or channel and value
         # ====================================================
 
         # ==============================
@@ -383,6 +396,16 @@ class Api:
             scr.set("screensaver_file", self.screensaver_file)
 
             self.response.set("screensaver", scr)
+
+            # ==============================
+            # house lights
+            #   scene=play|stop
+            #   channel=<1-512>&value=<0-255>
+            # ==============================
+            if cmd == "light":
+                self._set_light()
+
+            self.response.set("lights", self.lights.status())
 
             # ==============================
             # get playlist
@@ -536,6 +559,31 @@ class Api:
                 "content-type": "text/html",
                 "response": response
             })
+
+    def _set_light(self):
+
+        if not self.lights.enabled:
+            self.response.set("warning", "lights disabled")
+            return
+
+        try:
+
+            if self.query.get("scene"):
+
+                scene = self.query.get("scene")[0]
+
+                if scene == "play":
+                    self.lights.play()
+                elif scene == "stop" or scene == "idle":
+                    self.lights.idle()
+                else:
+                    self.response.set("warning", "unknown light scene")
+
+            if self.query.get("channel") is not None and self.query.get("value") is not None:
+                self.lights.set_channel(self.query.get("channel")[0], self.query.get("value")[0])
+
+        except ValueError as exc:
+            self.response.set("warning", str(exc))
 
     def __create_query(self, url):
 
